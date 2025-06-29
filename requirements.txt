@@ -1,0 +1,35 @@
+# Frontend
+streamlit
+
+# Environment management
+python-dotenv
+
+# LangChain and integrations
+langchain
+langchain-community
+langchain-openai
+langchain-groq   
+
+# Embeddings
+huggingface_hub
+sentence-transformers
+
+# Vector DB
+chromadb==0.4.24
+
+# PDF + file ingestion
+PyMuPDF
+unstructured
+pdfminer.six
+
+# Web scraping
+requests
+beautifulsoup4
+
+# Utilities
+tqdm
+numpy==1.26.4
+pandas
+
+# System compatibility
+protobuf==4.25.1
