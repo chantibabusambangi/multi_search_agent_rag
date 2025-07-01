@@ -1,3 +1,30 @@
+import pandas as pd
+from datetime import datetime
+import uuid
+import os
+import streamlit as st
+
+# ======================
+# ⚡ User Count Tracking
+# ======================
+user_id = str(uuid.uuid4())
+visits_file = "user_visits.csv"
+
+if not os.path.exists(visits_file):
+    df = pd.DataFrame(columns=["user_id", "visit_time"])
+    df.to_csv(visits_file, index=False)
+
+df = pd.read_csv(visits_file)
+
+if "counted" not in st.session_state:
+    if user_id not in df["user_id"].values:
+        new_visit = pd.DataFrame([[user_id, datetime.now()]], columns=["user_id", "visit_time"])
+        new_visit.to_csv(visits_file, mode="a", header=False, index=False)
+    st.session_state.counted = True
+
+st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique() + 1}")
+
+
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
 
 # Frontend
@@ -144,6 +171,7 @@ if st.sidebar.button("Ingest Data"):
         combine_docs_chain=document_chain
     )
 
+st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 # Only allow question input if retrieval_chain is ready
 if st.session_state.retrieval_chain is not None:
     user_query = st.text_input("Ask your question:")
