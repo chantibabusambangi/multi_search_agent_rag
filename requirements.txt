@@ -16,6 +16,7 @@ sentence-transformers
 
 # Vector DB
 chromadb==0.4.24
+faiss-cpu
 
 # PDF + file ingestion
 PyMuPDF
