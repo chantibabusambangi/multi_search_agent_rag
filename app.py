@@ -53,10 +53,21 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # LangChain - Vector DB (Chroma)
 from langchain_community.vectorstores import FAISS
+# Split into chunks
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200
+)
+documents = text_splitter.split_documents(docs)
+
+# Store in FAISS
+from langchain_community.vectorstores import FAISS
 st.session_state.vector_store = FAISS.from_documents(
     documents,
     embedding=embeddings
 )
+
+
 
 
 # LangChain - Chains and prompts
