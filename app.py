@@ -58,17 +58,6 @@ text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=200
 )
-documents = text_splitter.split_documents(docs)
-
-# Store in FAISS
-from langchain_community.vectorstores import FAISS
-st.session_state.vector_store = FAISS.from_documents(
-    documents,
-    embedding=embeddings
-)
-
-
-
 
 # LangChain - Chains and prompts
 from langchain_core.prompts import ChatPromptTemplate
@@ -170,11 +159,11 @@ if st.sidebar.button("Ingest Data"):
     )
     documents = text_splitter.split_documents(docs)
 
-    # Store in Chroma
-    st.session_state.vector_store = Chroma.from_documents(
+    from langchain_community.vectorstores import FAISS
+
+    st.session_state.vector_store = FAISS.from_documents(
         documents,
-        embedding=embeddings,
-        collection_name="rag_multi_search_dynamic"
+        embedding=embeddings
     )
 
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
