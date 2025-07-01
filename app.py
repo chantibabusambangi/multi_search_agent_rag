@@ -52,7 +52,12 @@ from langchain_community.document_loaders import (
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # LangChain - Vector DB (Chroma)
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import FAISS
+st.session_state.vector_store = FAISS.from_documents(
+    documents,
+    embedding=embeddings
+)
+
 
 # LangChain - Chains and prompts
 from langchain_core.prompts import ChatPromptTemplate
