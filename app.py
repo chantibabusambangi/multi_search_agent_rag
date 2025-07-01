@@ -85,7 +85,6 @@ from langchain.embeddings import HuggingFaceEmbeddings
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
 embeddings = HuggingFaceEmbeddings(
     model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
-    cache_folder="/kaggle/working/hf_cache"  # Optional: cache to persist between Kaggle sessions
 )
 
 print("✅ Hugging Face Embeddings initialized successfully!")
