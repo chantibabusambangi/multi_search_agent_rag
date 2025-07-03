@@ -175,7 +175,7 @@ if st.sidebar.button("Ingest Data"):
         combine_docs_chain=document_chain
     )
 
-st.sidebar.markdown("🔹 **Built with ❤️1 by chantibabusambangi@gmail.com**")
+st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 # Only allow question input if retrieval_chain is ready
 if st.session_state.retrieval_chain is not None:
     user_query = st.text_input("Ask your question:")
