@@ -145,6 +145,8 @@ if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 if st.sidebar.button("Ingest Data"):
 
