@@ -147,10 +147,12 @@ if st.sidebar.button("Ingest Data"):
             f.write(uploaded_file.read())
         loader = TextLoader("temp_uploaded_file.txt")
     elif data_source == "CSV File" and uploaded_file is not None:
+        import pandas as pd
         df = pd.read_csv(uploaded_file)
         csv_text = df.to_string(index=False)  # convert DataFrame to plain text
         with open("temp_uploaded_file.csv.txt", "w", encoding="utf-8") as f:
             f.write(csv_text)
+        from langchain_community.document_loaders import TextLoader
         loader = TextLoader("temp_uploaded_file.csv.txt")
 
     else:
