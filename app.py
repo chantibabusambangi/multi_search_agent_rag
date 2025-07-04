@@ -194,6 +194,9 @@ if (
         with st.chat_message("user"):
             st.markdown(user_query)
 
+        # ✅ Append user message to session state
+        st.session_state.messages.append({"role": "user", "content": user_query})
+
         with st.spinner("Generating answer..."):
             start_time = time.time()
             response = st.session_state.retrieval_chain.invoke({"input": user_query})
@@ -205,6 +208,9 @@ if (
         with st.chat_message("assistant"):
             st.markdown(answer)
             st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
+
+        # ✅ Append assistant message to session state
+        st.session_state.messages.append({"role": "assistant", "content": answer})
 
         with st.expander("🔍 Full raw response (debug)"):
             st.json(response)
