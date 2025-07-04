@@ -189,30 +189,20 @@ if (
     and len(st.session_state.vector_store.index_to_docstore_id) > 0
 ):
     user_query = st.chat_input("Ask your question:")
+
+    
     if user_query:
-        # Display user message in chat
-        with st.chat_message("user"):
-            st.markdown(user_query)
-
-        # ✅ Append user message to session state
-        st.session_state.messages.append({"role": "user", "content": user_query})
-
         with st.spinner("Generating answer..."):
             start_time = time.time()
             response = st.session_state.retrieval_chain.invoke({"input": user_query})
             elapsed = time.time() - start_time
 
-        answer = response.get('answer') or response.get('output') or response or "⚠️ No answer returned."
+        st.subheader("Answer:")
+        st.write(response.get('answer') or response.get('output') or response or "⚠️ No answer returned.")
 
-        # Display assistant response in chat
-        with st.chat_message("assistant"):
-            st.markdown(answer)
-            st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
+        st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
 
-        # ✅ Append assistant message to session state
-        st.session_state.messages.append({"role": "assistant", "content": answer})
-
-        with st.expander("🔍 Full raw response (debug)"):
+        with st.expander("🔍 Full raw response (debug):"):
             st.json(response)
 
         if "context" in response and response["context"]:
@@ -224,3 +214,12 @@ if (
             st.info("⚠️ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
+
+
+
+
+
+
+
+
+
