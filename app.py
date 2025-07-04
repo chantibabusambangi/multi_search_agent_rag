@@ -39,7 +39,8 @@ import time
 from langchain_groq import ChatGroq
 
 # LangChain - Local, open-source embeddings
-from langchain.embeddings import HuggingFaceEmbeddings
+#from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # LangChain - Document loaders for URLs, PDFs, TXT/MD
 from langchain_community.document_loaders import (
@@ -85,7 +86,7 @@ print(llm,"done")
 #step3
 # Step 3: Hugging Face Embeddings Setup
 
-from langchain.embeddings import HuggingFaceEmbeddings
+
 
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
 embeddings = HuggingFaceEmbeddings(
