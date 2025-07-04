@@ -210,32 +210,3 @@ if st.session_state.retrieval_chain is not None:
             st.info("⚠️ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
-'''
-# Only allow question input if retrieval_chain is ready
-if st.session_state.retrieval_chain is not None:
-    user_query = st.text_input("Ask your question:")
-
-    if user_query:
-        with st.spinner("Generating answer..."):
-            start_time = time.time()
-            response = st.session_state.retrieval_chain.invoke({"input": user_query})
-            elapsed = time.time() - start_time
-
-        st.subheader("Answer:")
-        st.write(response.get('answer') or response.get('output') or response or "⚠️ No answer returned.")
-
-        st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
-
-        with st.expander("🔍 Full raw response (debug):"):
-            st.json(response)
-
-        if "context" in response and response["context"]:
-            with st.expander("📄 Show retrieved context chunks"):
-                for doc in response["context"]:
-                    st.write(doc.page_content)
-                    st.write("---")
-        else:
-            st.info("⚠️ No retrieved context available for this query.")
-else:
-    st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
-'''
