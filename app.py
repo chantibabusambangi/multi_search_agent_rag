@@ -116,7 +116,7 @@ st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
 
-data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File"])
+data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File", "CSV File"])
 
 uploaded_file = None
 input_url = None
@@ -125,6 +125,8 @@ if data_source == "URL":
     input_url = st.sidebar.text_input("Enter URL to ingest:")
 elif data_source in ["PDF", "Text File"]:
     uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
+elif data_source == "CSV File":
+    uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
 # Initialize session state holders
 if "messages" not in st.session_state:
@@ -146,6 +148,13 @@ if st.sidebar.button("Ingest Data"):
         with open("temp_uploaded_file.txt", "wb") as f:
             f.write(uploaded_file.read())
         loader = TextLoader("temp_uploaded_file.txt")
+    elif data_source == "CSV File" and uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        csv_text = df.to_string(index=False)  # convert DataFrame to plain text
+        with open("temp_uploaded_file.csv.txt", "w", encoding="utf-8") as f:
+            f.write(csv_text)
+        loader = TextLoader("temp_uploaded_file.csv.txt")
+
     else:
         st.error("⚠️ Please provide a valid input for the selected data source.")
         st.stop()
