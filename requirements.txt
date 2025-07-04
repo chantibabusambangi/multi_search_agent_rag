@@ -17,6 +17,9 @@ sentence-transformers
 # Vector DB
 chromadb==0.4.24
 faiss-cpu
+#for image text extraction
+pytesseract
+Pillow
 
 # PDF + file ingestion
 PyMuPDF
