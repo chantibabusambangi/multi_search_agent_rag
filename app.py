@@ -116,7 +116,7 @@ st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
 
-data_source = st.sidebar.radio("Select data sources:", ["URL", "PDF", "Text File", "CSV File"])
+data_source = st.sidebar.radio("Select data sources:", ["URL", "PDF", "Text File", "CSV File","Image (OCR)"])
 
 uploaded_file = None
 input_url = None
@@ -127,6 +127,17 @@ elif data_source in ["PDF", "Text File"]:
     uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
 elif data_source == "CSV File":
     uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+elif data_source == "Image (OCR)":
+        try:
+            import pytesseract
+            from PIL import Image
+        except ImportError:
+            st.error("⚠️ Please install 'pytesseract' and 'Pillow' in your environment for OCR support.")
+
+        uploaded_file = st.sidebar.file_uploader(
+            "Upload your image file for OCR ingestion",
+            type=["jpg", "jpeg", "png", "webp", "tiff"]
+        )
 
 # Initialize session state holders
 if "vector_store" not in st.session_state:
@@ -154,6 +165,22 @@ if st.sidebar.button("Ingest Data"):
             f.write(csv_text)
         from langchain_community.document_loaders import TextLoader
         loader = TextLoader("temp_uploaded_file.csv.txt")
+    elif data_source == "Image (OCR)" and uploaded_file is not None:
+        # Save uploaded image
+        image_path = "temp_uploaded_image.png"
+        with open(image_path, "wb") as f:
+            f.write(uploaded_file.read())
+    
+        # Perform OCR
+        image = Image.open(image_path)
+        extracted_text = pytesseract.image_to_string(image)
+    
+        # Save extracted text to a temporary file for ingestion
+        with open("temp_uploaded_image.txt", "w", encoding="utf-8") as f:
+            f.write(extracted_text)
+    
+        # Load using TextLoader
+        loader = TextLoader("temp_uploaded_image.txt")
 
     else:
         st.error("⚠️ Please provide a valid input for the selected data source.")
