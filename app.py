@@ -129,8 +129,6 @@ elif data_source == "CSV File":
     uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
 # Initialize session state holders
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
