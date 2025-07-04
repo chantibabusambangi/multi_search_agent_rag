@@ -17,10 +17,7 @@ sentence-transformers
 # Vector DB
 chromadb==0.4.24
 faiss-cpu
-diffusers
-transformers
-accelerate
-torch
+
 # PDF + file ingestion
 PyMuPDF
 unstructured
