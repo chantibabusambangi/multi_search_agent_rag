@@ -200,6 +200,9 @@ if st.sidebar.button("Ingest Data"):
     st.info("Loading and processing documents...")
 
     docs = loader.load()
+    if not docs:
+        st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
+        st.stop()
 
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
