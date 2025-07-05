@@ -117,7 +117,7 @@ st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
 
-data_source = st.sidebar.radio("Select data sources:", ["URL", "PDF", "Text File", "CSV File"])
+data_source = st.sidebar.radio("Select data sources:", ["URL", "PDF", "Text File", "CSV File","Image (OCR)"])
 
 uploaded_file = None
 input_url = None
@@ -263,12 +263,4 @@ if (
             st.info("⚠️ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
-
-
-
-
-
-
-
-
 
