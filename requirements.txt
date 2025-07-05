@@ -18,8 +18,10 @@ sentence-transformers
 chromadb==0.4.24
 faiss-cpu
 #for image text extraction
-pytesseract
+
 Pillow
+easyocr
+torch
 
 # PDF + file ingestion
 PyMuPDF
