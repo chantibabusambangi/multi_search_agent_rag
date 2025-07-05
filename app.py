@@ -22,7 +22,7 @@ if "counted" not in st.session_state:
         new_visit.to_csv(visits_file, mode="a", header=False, index=False)
     st.session_state.counted = True
 
-st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique() + 1}")
+st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique()}")
 
 
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
@@ -129,16 +129,18 @@ elif data_source in ["PDF", "Text File"]:
 elif data_source == "CSV File":
     uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 elif data_source == "Image (OCR)":
-        try:
-            import pytesseract
-            from PIL import Image
-        except ImportError:
-            st.error("⚠️ Please install 'pytesseract' and 'Pillow' in your environment for OCR support.")
+    try:
+        import easyocr
+        from PIL import Image
+    except ImportError:
+        st.error("⚠️ Please install 'easyocr' and 'Pillow' in your environment: `pip install easyocr pillow`.")
+        st.stop()
 
-        uploaded_file = st.sidebar.file_uploader(
-            "Upload your image file for OCR ingestion",
-            type=["jpg", "jpeg", "png", "webp", "tiff"]
-        )
+    uploaded_file = st.sidebar.file_uploader(
+        "Upload your image file for OCR ingestion",
+        type=["jpg", "jpeg", "png", "webp", "tiff"]
+    )
+
 
 # Initialize session state holders
 if "vector_store" not in st.session_state:
@@ -169,21 +171,27 @@ if st.sidebar.button("Ingest Data"):
         from langchain_community.document_loaders import TextLoader
         loader = TextLoader("temp_uploaded_file.csv.txt")
     elif data_source == "Image (OCR)" and uploaded_file is not None:
+        import easyocr
+        from PIL import Image
+    
         # Save uploaded image
         image_path = "temp_uploaded_image.png"
         with open(image_path, "wb") as f:
             f.write(uploaded_file.read())
     
+        # Initialize EasyOCR reader
+        reader = easyocr.Reader(['en'])  # Add additional languages if needed
+    
         # Perform OCR
-        image = Image.open(image_path)
-        extracted_text = pytesseract.image_to_string(image)
+        results = reader.readtext(image_path, detail=0)  # returns list of detected strings
+    
+        extracted_text = "\n".join(results)
     
         # Save extracted text to a temporary file for ingestion
         with open("temp_uploaded_image.txt", "w", encoding="utf-8") as f:
             f.write(extracted_text)
-    
-        # Load using TextLoader
         loader = TextLoader("temp_uploaded_image.txt")
+
 
     else:
         st.error("⚠️ Please provide a valid input for the selected data source.")
