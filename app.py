@@ -117,7 +117,7 @@ st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
 
-data_source = st.sidebar.radio("Select data sources:", ["URL", "PDF", "Text File", "CSV File","Image (OCR)"])
+data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File", "CSV File","Image (OCR)"])
 
 uploaded_file = None
 input_url = None
