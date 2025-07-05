@@ -128,27 +128,15 @@ elif data_source in ["PDF", "Text File"]:
     uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
 elif data_source == "CSV File":
     uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
-elif data_source == "Image (OCR)":
-    try:
-        import easyocr
-        from PIL import Image
-    except ImportError:
-        st.error("⚠️ Please install 'easyocr' and 'Pillow' in your environment: `pip install easyocr pillow`.")
-        st.stop()
-
-    uploaded_file = st.sidebar.file_uploader(
-        "Upload your image file for OCR ingestion",
-        type=["jpg", "jpeg", "png", "webp", "tiff"]
-    )
-
 
 # Initialize session state holders
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+
 
 if st.sidebar.button("Ingest Data"):
 
@@ -170,29 +158,7 @@ if st.sidebar.button("Ingest Data"):
             f.write(csv_text)
         from langchain_community.document_loaders import TextLoader
         loader = TextLoader("temp_uploaded_file.csv.txt")
-    elif data_source == "Image (OCR)" and uploaded_file is not None:
-        import easyocr
-        from PIL import Image
     
-        # Save uploaded image
-        image_path = "temp_uploaded_image.png"
-        with open(image_path, "wb") as f:
-            f.write(uploaded_file.read())
-    
-        # Initialize EasyOCR reader
-        reader = easyocr.Reader(['en'])  # Add additional languages if needed
-    
-        # Perform OCR
-        results = reader.readtext(image_path, detail=0)  # returns list of detected strings
-    
-        extracted_text = "\n".join(results)
-    
-        # Save extracted text to a temporary file for ingestion
-        with open("temp_uploaded_image.txt", "w", encoding="utf-8") as f:
-            f.write(extracted_text)
-        loader = TextLoader("temp_uploaded_image.txt")
-
-
     else:
         st.error("⚠️ Please provide a valid input for the selected data source.")
         st.stop()
@@ -241,8 +207,6 @@ if (
     and len(st.session_state.vector_store.index_to_docstore_id) > 0
 ):
     user_query = st.chat_input("Ask your question:")
-
-    
     if user_query:
         with st.spinner("Generating answer..."):
             start_time = time.time()
