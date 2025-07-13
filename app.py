@@ -193,7 +193,6 @@ if st.sidebar.button("Ingest Data"):
         combine_docs_chain=document_chain
     )
 
-st.sidebar.markdown("🔹 **Built with ❤️1 by chantibabusambangi@gmail.com**")
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 if "messages" not in st.session_state:
     st.session_state.messages = []
