@@ -195,6 +195,33 @@ if data_source != "General Talk":
         )
 else:
     st.sidebar.markdown("ℹ️ Ingestion not required in General Talk Mode.")
+    st.success("🗨️ General Talk Mode Active: LLM + Wikipedia + Arxiv retrieval enabled.")
+
+    # Initialize Wikipedia and Arxiv wrappers
+    wiki_wrapper = WikipediaAPIWrapper()
+    arxiv_wrapper = ArxivAPIWrapper()
+
+    # Define tools for the agent
+    tools = [
+        Tool(
+            name="Wikipedia",
+            func=WikipediaQueryRun(api_wrapper=wiki_wrapper).run,
+            description="Useful for answering general knowledge queries using Wikipedia."
+        ),
+        Tool(
+            name="Arxiv",
+            func=ArxivQueryRun(api_wrapper=arxiv_wrapper).run,
+            description="Useful for fetching academic papers and summaries from Arxiv."
+        ),
+    ]
+
+    # Create the general talk agent
+    general_agent = initialize_agent(
+        tools,
+        llm,
+        agent=AgentType.OPENAI_FUNCTIONS,
+        verbose=True
+    )
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 if "messages" not in st.session_state:
     st.session_state.messages = []
