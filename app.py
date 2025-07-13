@@ -117,7 +117,7 @@ st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
 
-data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File", "CSV File"])
+data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File", "CSV File","General Talk"])
 
 uploaded_file = None
 input_url = None
@@ -128,6 +128,9 @@ elif data_source in ["PDF", "Text File"]:
     uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
 elif data_source == "CSV File":
     uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+elif data_source == "General Talk":
+    st.info("✅ General Talk Mode Enabled. You can chat below without data ingestion.")
+
 
 # Initialize session state holders
 if "messages" not in st.session_state:
@@ -137,62 +140,61 @@ if "vector_store" not in st.session_state:
 if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
 
-
-if st.sidebar.button("Ingest Data"):
-
-    if data_source == "URL" and input_url:
-        loader = WebBaseLoader(input_url)
-    elif data_source == "PDF" and uploaded_file is not None:
-        with open("temp_uploaded_file.pdf", "wb") as f:
-            f.write(uploaded_file.read())
-        loader = PyPDFLoader("temp_uploaded_file.pdf")
-    elif data_source == "Text File" and uploaded_file is not None:
-        with open("temp_uploaded_file.txt", "wb") as f:
-            f.write(uploaded_file.read())
-        loader = TextLoader("temp_uploaded_file.txt")
-    elif data_source == "CSV File" and uploaded_file is not None:
-        import pandas as pd
-        df = pd.read_csv(uploaded_file)
-        csv_text = df.to_string(index=False)  # convert DataFrame to plain text
-        with open("temp_uploaded_file.csv.txt", "w", encoding="utf-8") as f:
-            f.write(csv_text)
-        from langchain_community.document_loaders import TextLoader
-        loader = TextLoader("temp_uploaded_file.csv.txt")
+if data_source != "General Talk":
+    if st.sidebar.button("Ingest Data"):
     
-    else:
-        st.error("⚠️ Please provide a valid input for the selected data source.")
-        st.stop()
-
-    st.info("Loading and processing documents...")
-
-    docs = loader.load()
-    if not docs:
-        st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
-        st.stop()
-
-    # Split into chunks
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
-    documents = text_splitter.split_documents(docs)
-
-    from langchain_community.vectorstores import FAISS
-
-    st.session_state.vector_store = FAISS.from_documents(
-        documents,
-        embedding=embeddings
-    )
-
-    st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
-
-    # Create retrieval chain
-    document_chain = create_stuff_documents_chain(llm, prompt)
-    st.session_state.retrieval_chain = create_retrieval_chain(
-        retriever=st.session_state.vector_store.as_retriever(),
-        combine_docs_chain=document_chain
-    )
-
+        if data_source == "URL" and input_url:
+            loader = WebBaseLoader(input_url)
+        elif data_source == "PDF" and uploaded_file is not None:
+            with open("temp_uploaded_file.pdf", "wb") as f:
+                f.write(uploaded_file.read())
+            loader = PyPDFLoader("temp_uploaded_file.pdf")
+        elif data_source == "Text File" and uploaded_file is not None:
+            with open("temp_uploaded_file.txt", "wb") as f:
+                f.write(uploaded_file.read())
+            loader = TextLoader("temp_uploaded_file.txt")
+        elif data_source == "CSV File" and uploaded_file is not None:
+            import pandas as pd
+            df = pd.read_csv(uploaded_file)
+            csv_text = df.to_string(index=False)  # convert DataFrame to plain text
+            with open("temp_uploaded_file.csv.txt", "w", encoding="utf-8") as f:
+                f.write(csv_text)
+            from langchain_community.document_loaders import TextLoader
+            loader = TextLoader("temp_uploaded_file.csv.txt")
+        else:
+            st.error("⚠️ Please provide a valid input for the selected data source.")
+            st.stop()
+        st.info("Loading and processing documents...")
+    
+        docs = loader.load()
+        if not docs:
+            st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
+            st.stop()
+    
+        # Split into chunks
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200
+        )
+        documents = text_splitter.split_documents(docs)
+    
+        from langchain_community.vectorstores import FAISS
+    
+        st.session_state.vector_store = FAISS.from_documents(
+            documents,
+            embedding=embeddings
+        )
+    
+        st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
+    
+        # Create retrieval chain
+        document_chain = create_stuff_documents_chain(llm, prompt)
+        st.session_state.retrieval_chain = create_retrieval_chain(
+            retriever=st.session_state.vector_store.as_retriever(),
+            combine_docs_chain=document_chain
+        )
+else:
+    st.sidebar.markdown("ℹ️ Ingestion not required in General Talk Mode.")
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 if "messages" not in st.session_state:
     st.session_state.messages = []
