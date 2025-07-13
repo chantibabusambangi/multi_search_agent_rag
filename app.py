@@ -87,14 +87,6 @@ print(llm,"done")
 # Step 3: Hugging Face Embeddings Setup
 
 
-
-# Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
-embeddings = HuggingFaceEmbeddings(
-    model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
-    model_kwargs={"device": "cpu"}
-)
-
-print("✅ Hugging Face Embeddings initialized successfully!")
 # ======================
 # ⚡ Multi-Search Agent RAG System - Step 4 (Corrected)
 # ======================
@@ -142,6 +134,13 @@ if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
 
 if data_source != "General Talk":
+    # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
+    embeddings = HuggingFaceEmbeddings(
+        model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
+        model_kwargs={"device": "cpu"}
+    )
+    
+    print("✅ Hugging Face Embeddings initialized successfully!")
     if st.sidebar.button("Ingest Data"):
     
         if data_source == "URL" and input_url:
@@ -195,6 +194,10 @@ if data_source != "General Talk":
             combine_docs_chain=document_chain
         )
 else:
+    from langchain_community.utilities import WikipediaAPIWrapper, ArxivAPIWrapper
+    from langchain_community.tools import WikipediaQueryRun, ArxivQueryRun, Tool
+    from langchain.agents import initialize_agent, AgentType
+
     st.sidebar.markdown("ℹ️ Ingestion not required in General Talk Mode.")
     st.success("🗨️ General Talk Mode Active: LLM + Wikipedia + Arxiv retrieval enabled.")
 
@@ -259,6 +262,18 @@ if (
                     st.write("---")
         else:
             st.info("⚠️ No retrieved context available for this query.")
+elif data_source == "General Talk":
+    user_query = st.chat_input("Ask your general knowledge or research question:")
+    if user_query:
+        with st.spinner("Thinking..."):
+            start_time = time.time()
+            response = general_agent.run(user_query)
+            elapsed = time.time() - start_time
+
+        st.subheader("Answer:")
+        st.write(response)
+
+        st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
 
