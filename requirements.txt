@@ -19,6 +19,9 @@ chromadb==0.4.24
 faiss-cpu
 #for image text extraction
 
+wikipedia
+arxiv
+
 Pillow
 easyocr
 torch
