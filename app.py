@@ -25,7 +25,7 @@ if "counted" not in st.session_state:
         new_visit.to_csv(visits_file, mode="a", header=False, index=False)
     st.session_state.counted = True
 
-st.sidebar.markdown(f"👥 *Total Visitors:* {df['user_id'].nunique(),100}")
+st.sidebar.markdown(f"👥 *Total Visitors100:* {df['user_id'].nunique()}")
 
 
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
