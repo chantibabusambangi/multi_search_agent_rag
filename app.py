@@ -129,8 +129,6 @@ elif data_source in ["PDF", "Text File"]:
 
 # Initialize session state holders
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
@@ -180,10 +178,10 @@ if st.sidebar.button("Ingest Data"):
     )
 
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
+# Only allow question input if retrieval_chain is ready
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
-# Only allow question input if retrieval_chain is ready
 if st.session_state.retrieval_chain is not None:
     user_query = st.text_input("Ask your question:")
 
