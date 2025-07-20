@@ -82,36 +82,33 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
 print(llm,"done")
 
+from langchain.embeddings.base import Embeddings
 import google.generativeai as genai
-import streamlit as st
 
-# Configure Gemini API key from Streamlit secrets
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+# ✅ Load Gemini API key from Streamlit secrets
+os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 
-class GeminiEmbeddings:
+# ✅ Configure Gemini
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+class GeminiEmbeddings(Embeddings):
     def __init__(self):
-        self.model_name = "models/embedding-001"
-
-    def embed_query(self, text: str):
-        result = genai.embed_content(
-            model=self.model_name,
-            content=text,
-            task_type="retrieval_query",
-            # No need for EmbedContentConfig, just use a dict
-            config={"output_dimensionality": 768}
-        )
-        return result["embedding"]
+        self.model = genai.GenerativeModel(model_name="models/embedding-001")
 
     def embed_documents(self, texts):
         return [
-            genai.embed_content(
-                model=self.model_name,
+            self.model.embed_content(
                 content=text,
-                task_type="retrieval_document",
-                config={"output_dimensionality": 768}
+                task_type="retrieval_document"
             )["embedding"]
             for text in texts
         ]
+
+    def embed_query(self, text):
+        return self.model.embed_content(
+            content=text,
+            task_type="retrieval_query"
+        )["embedding"]
 
 
 # ======================
@@ -199,10 +196,11 @@ if st.sidebar.button("Ingest Data"):
 
     from langchain_community.vectorstores import FAISS
 
-    st.session_state.vector_store = FAISS.from_documents(
-        documents,
-        embedding=GeminiEmbeddings()
-    )
+    # Create vector store from documents and embeddings
+    st.session_state.vector_store = FAISS.from_documents(documents, GeminiEmbeddings())
+
+    # Optional: Save it for reuse
+    st.session_state.vector_store.save_local("faiss_index")
 
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
