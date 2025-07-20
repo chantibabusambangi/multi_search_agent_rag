@@ -87,19 +87,12 @@ print(llm,"done")
 
 #step3
 # Step 3: Hugging Face Embeddings Setup
-from sentence_transformers import SentenceTransformer
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.embeddings import SentenceTransformerEmbeddings
 
-# Eagerly load the weights onto CPU
-model = SentenceTransformer(
-    "BAAI/bge-small-en",
-    device_map=None,
-    torch_dtype="float32"
+# Replace your embeddings block with this:
+embeddings = SentenceTransformerEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"  
 )
-model.to("cpu")
-
-# Now give that ready‑to‑use model directly to LangChain
-embeddings = HuggingFaceEmbeddings(client=model)
 
 print("✅ Hugging Face Embeddings initialized successfully!")
 # ======================
