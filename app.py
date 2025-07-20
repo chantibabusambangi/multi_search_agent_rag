@@ -92,7 +92,7 @@ os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 # Use Hugging Face Inference API to get embeddings
 huggingface_embeddings = HuggingFaceHubEmbeddings(
     repo_id="BAAI/bge-small-en-v1.5",  # or use "sentence-transformers/all-MiniLM-L6-v2" for faster response
-    model_kwargs={"task": "text-embedding"}
+    model_kwargs={"task": "feature-extraction"}
 )
 
 
