@@ -1,20 +1,24 @@
 # Frontend
 streamlit
 
+# Torch
+torch==2.2.2
+
+
 # Environment management
 python-dotenv
-
 # LangChain and integrations
-langchain
-langchain-community
-langchain-openai
-langchain-groq   
+langchain==0.1.16
+langchain-community==0.0.36
+langchain-openai==0.1.4
+langchain-groq==0.1.2
+   
 
 # Embeddings
 huggingface_hub
-sentence-transformers
+sentence-transformers==2.7.0
 
-google-generativeai==0.5.4
+#google-generativeai==0.5.4
 
 # Vector DB
 chromadb==0.4.24
@@ -26,7 +30,7 @@ arxiv
 
 Pillow
 easyocr
-torch
+
 
 # PDF + file ingestion
 PyMuPDF
