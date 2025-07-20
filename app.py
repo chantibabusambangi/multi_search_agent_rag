@@ -88,7 +88,18 @@ import os
 
 # ✅ Load Hugging Face API key from Streamlit secrets
 api_key = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-print(api_key,"was the api_key")
+
+
+
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+model_name = "sentence-transformers/all-MiniLM-L6-v2"
+embedding = HuggingFaceEmbeddings(model_name=model_name)
+
+print(embedding.embed_query("Hello world"))
+
+
+
 # ✅ Create the embedding model from Hugging Face Hub
 huggingface_embeddings = HuggingFaceInferenceAPIEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2",  # Correct key here!
