@@ -15,7 +15,7 @@ langchain-groq==0.1.2
    
 
 # Embeddings
-huggingface_hub
+huggingface_hub==0.23.0
 sentence-transformers==2.7.0
 
 #google-generativeai==0.5.4
