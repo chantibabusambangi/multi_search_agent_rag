@@ -82,12 +82,10 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
 print(llm,"done")
 
-
 import google.generativeai as genai
-from google.generativeai.types import EmbedContentConfig
 import streamlit as st
 
-# Configure Gemini API key
+# Configure Gemini API key from Streamlit secrets
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 class GeminiEmbeddings:
@@ -99,7 +97,8 @@ class GeminiEmbeddings:
             model=self.model_name,
             content=text,
             task_type="retrieval_query",
-            config=EmbedContentConfig(output_dimensionality=768)
+            # No need for EmbedContentConfig, just use a dict
+            config={"output_dimensionality": 768}
         )
         return result["embedding"]
 
@@ -109,7 +108,7 @@ class GeminiEmbeddings:
                 model=self.model_name,
                 content=text,
                 task_type="retrieval_document",
-                config=EmbedContentConfig(output_dimensionality=768)
+                config={"output_dimensionality": 768}
             )["embedding"]
             for text in texts
         ]
