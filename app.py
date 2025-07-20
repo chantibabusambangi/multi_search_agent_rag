@@ -83,20 +83,32 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 print(llm,"done")
 
 import streamlit as st
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
-import os
+from google import genai
+from google.genai import types
 
-# ✅ Load Hugging Face API key from Streamlit secrets
-api_key = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+class GeminiEmbeddings:
+    def __init__(self):
+        api_key = st.secrets["GEMINI_API_KEY"]  # ✅ KEY LOADED FROM STREAMLIT SECRETS
+        genai.configure(api_key=api_key)
+        self.client = genai.Client()
+        self.model_name = "models/embedding-001"
 
+    def embed_query(self, text: str):
+        result = self.client.models.embed_content(
+            model=self.model_name,
+            content=text,
+            config=types.EmbedContentConfig(output_dimensionality=768)
+        )
+        return result.embedding
 
-# ✅ Create the embedding model from Hugging Face Hub
-huggingface_embeddings = HuggingFaceInferenceAPIEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2",  # Correct key here!
-    api_key = api_key 
-)
-
-print("✅ Hugging Face Embeddings initialized successfully!")
+    def embed_documents(self, texts):
+        return [
+            self.client.models.embed_content(
+                model=self.model_name,
+                content=text,
+                config=types.EmbedContentConfig(output_dimensionality=768)
+            ).embedding for text in texts
+        ]
 
 # ======================
 # ⚡ Multi-Search Agent RAG System - Step 4 (Corrected)
@@ -185,7 +197,7 @@ if st.sidebar.button("Ingest Data"):
 
     st.session_state.vector_store = FAISS.from_documents(
         documents,
-        embedding=huggingface_embeddings
+        embedding=GeminiEmbeddings()
     )
 
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
