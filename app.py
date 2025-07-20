@@ -184,7 +184,7 @@ if st.sidebar.button("Ingest Data"):
 
     st.session_state.vector_store = FAISS.from_documents(
         documents,
-        embedding=embeddings
+        embedding=huggingface_embeddings
     )
 
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
