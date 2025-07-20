@@ -91,6 +91,7 @@ print(llm,"done")
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
 embeddings = HuggingFaceEmbeddings(
     model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
+    model_kwargs={"device": "cpu"}
 )
 
 print("✅ Hugging Face Embeddings initialized successfully!")
