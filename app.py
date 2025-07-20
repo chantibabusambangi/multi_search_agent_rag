@@ -83,33 +83,39 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
 print(llm,"done")
 
+
+from typing import List
 from langchain.embeddings.base import Embeddings
+from google.generativeai import embed_content
 import google.generativeai as genai
+import os
+from dotenv import load_dotenv
 
-# ✅ Load Gemini API key from Streamlit secrets
+# ✅ Load environment variables
+load_dotenv()
 
-os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
-# ✅ Configure Gemini
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+# ✅ Configure Gemini API key from .env
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-class GeminiEmbeddings(Embeddings):
+class GeminiEmbedding(Embeddings):
     def __init__(self):
-        self.model = genai.GenerativeModel(model_name="models/embedding-001")
+        self.model_name = "models/embedding-001"
 
-    def embed_documents(self, texts):
-        return [
-            self.model.embed_content(
-                content=text,
-                task_type="retrieval_document"
-            )["embedding"]
-            for text in texts
-        ]
-
-    def embed_query(self, text):
-        return self.model.embed_content(
+    def _embed(self, text: str) -> List[float]:
+        result = embed_content(
+            model=self.model_name,
             content=text,
-            task_type="retrieval_query"
-        )["embedding"]
+            task_type="retrieval_query",
+            config={"output_dimensionality": 768}
+        )
+        return result["embedding"]
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        return [self._embed(text) for text in texts]
+
+    def embed_query(self, text: str) -> List[float]:
+        return self._embed(text)
+
 
 
 # ======================
