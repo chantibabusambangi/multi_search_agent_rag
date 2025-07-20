@@ -196,7 +196,7 @@ if st.sidebar.button("Ingest Data"):
         combine_docs_chain=document_chain
     )
 
-st.sidebar.markdown("🔹 *Built with ❤ by chantibabusambangi@gmail.com*")
+st.sidebar.markdown("🔹 *Built with 💓 by chantibabusambangi@gmail.com*")
 
 # Only allow question input if retrieval_chain is ready
 for msg in st.session_state.messages:
