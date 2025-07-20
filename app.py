@@ -128,6 +128,9 @@ elif data_source in ["PDF", "Text File"]:
     uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
 
 # Initialize session state holders
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
