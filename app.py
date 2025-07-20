@@ -78,6 +78,7 @@ load_dotenv()
 from langchain_groq import ChatGroq
 
 #llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="mixtral-8x7b-32768")
+
 llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
 print(llm,"done")
@@ -86,8 +87,8 @@ from langchain.embeddings.base import Embeddings
 import google.generativeai as genai
 
 # ✅ Load Gemini API key from Streamlit secrets
-os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 
+os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 # ✅ Configure Gemini
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
