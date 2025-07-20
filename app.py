@@ -87,7 +87,7 @@ print(llm,"done")
 
 import os
 import streamlit as st
-from langchain.embeddings import HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceHubEmbeddings
 
 # Load Hugging Face API key from Streamlit secrets
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
