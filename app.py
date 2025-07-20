@@ -85,14 +85,19 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
 print(llm,"done")
 
-#step3
-# Step 3: Hugging Face Embeddings Setup
-from langchain.embeddings import SentenceTransformerEmbeddings
+import os
+import streamlit as st
+from langchain.embeddings import HuggingFaceHubEmbeddings
 
-# Replace your embeddings block with this:
-embeddings = SentenceTransformerEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"  
+# Load Hugging Face API key from Streamlit secrets
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+
+# Use Hugging Face Inference API to get embeddings
+huggingface_embeddings = HuggingFaceHubEmbeddings(
+    repo_id="BAAI/bge-small-en-v1.5",  # or use "sentence-transformers/all-MiniLM-L6-v2" for faster response
+    model_kwargs={"task": "feature-extraction"}
 )
+
 
 print("✅ Hugging Face Embeddings initialized successfully!")
 # ======================
