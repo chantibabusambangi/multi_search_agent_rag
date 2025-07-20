@@ -89,11 +89,17 @@ print(llm,"done")
 
 
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
+from langchain.embeddings import SentenceTransformerEmbeddings
+embeddings = SentenceTransformerEmbeddings(
+    model_name="sentence-transformers/paraphrase-MiniLM-L6-v2"
+)
+'''
 embeddings = HuggingFaceEmbeddings(
     #model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
     model_name="sentence-transformers/paraphrase-MiniLM-L6-v2",
     model_kwargs={"device": "cpu"}
 )
+'''
 
 
 
