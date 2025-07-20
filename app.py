@@ -229,4 +229,4 @@ if (
             st.info("⚠ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
-how was this?
+
