@@ -41,9 +41,6 @@ import time
 # LangChain - LLM via Groq
 from langchain_groq import ChatGroq
 
-# LangChain - Local, open-source embeddings
-from langchain.embeddings import HuggingFaceEmbeddings
-
 # LangChain - Document loaders for URLs, PDFs, TXT/MD
 from langchain_community.document_loaders import (
     WebBaseLoader,
