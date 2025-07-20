@@ -87,15 +87,7 @@ print(llm,"done")
 
 #step3
 # Step 3: Hugging Face Embeddings Setup
-'''
-from langchain.embeddings import HuggingFaceEmbeddings
 
-# Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
-embeddings = HuggingFaceEmbeddings(
-    model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
-    model_kwargs={"device": "cpu"}
-)
-'''
 from sentence_transformers import SentenceTransformer
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
