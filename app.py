@@ -82,33 +82,38 @@ llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
 print(llm,"done")
 
+
+import google.generativeai as genai
+from google.generativeai.types import EmbedContentConfig
 import streamlit as st
-from google import genai
-from google.genai import types
+
+# Configure Gemini API key
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 class GeminiEmbeddings:
     def __init__(self):
-        api_key = st.secrets["GEMINI_API_KEY"]  # ✅ KEY LOADED FROM STREAMLIT SECRETS
-        genai.configure(api_key=api_key)
-        self.client = genai.Client()
         self.model_name = "models/embedding-001"
 
     def embed_query(self, text: str):
-        result = self.client.models.embed_content(
+        result = genai.embed_content(
             model=self.model_name,
             content=text,
-            config=types.EmbedContentConfig(output_dimensionality=768)
+            task_type="retrieval_query",
+            config=EmbedContentConfig(output_dimensionality=768)
         )
-        return result.embedding
+        return result["embedding"]
 
     def embed_documents(self, texts):
         return [
-            self.client.models.embed_content(
+            genai.embed_content(
                 model=self.model_name,
                 content=text,
-                config=types.EmbedContentConfig(output_dimensionality=768)
-            ).embedding for text in texts
+                task_type="retrieval_document",
+                config=EmbedContentConfig(output_dimensionality=768)
+            )["embedding"]
+            for text in texts
         ]
+
 
 # ======================
 # ⚡ Multi-Search Agent RAG System - Step 4 (Corrected)
