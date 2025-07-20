@@ -22,7 +22,7 @@ if "counted" not in st.session_state:
         new_visit.to_csv(visits_file, mode="a", header=False, index=False)
     st.session_state.counted = True
 
-st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique()}")
+st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique() + 1}")
 
 
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
@@ -52,12 +52,7 @@ from langchain_community.document_loaders import (
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # LangChain - Vector DB (Chroma)
-from langchain_community.vectorstores import FAISS
-# Split into chunks
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=200
-)
+from langchain_community.vectorstores import Chroma
 
 # LangChain - Chains and prompts
 from langchain_core.prompts import ChatPromptTemplate
@@ -90,6 +85,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
 embeddings = HuggingFaceEmbeddings(
     model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
+    cache_folder="/kaggle/working/hf_cache"  # Optional: cache to persist between Kaggle sessions
 )
 
 print("✅ Hugging Face Embeddings initialized successfully!")
@@ -159,11 +155,11 @@ if st.sidebar.button("Ingest Data"):
     )
     documents = text_splitter.split_documents(docs)
 
-    from langchain_community.vectorstores import FAISS
-
-    st.session_state.vector_store = FAISS.from_documents(
+    # Store in Chroma
+    st.session_state.vector_store = Chroma.from_documents(
         documents,
-        embedding=embeddings
+        embedding=embeddings,
+        collection_name="rag_multi_search_dynamic"
     )
 
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
