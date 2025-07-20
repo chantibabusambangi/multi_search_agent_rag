@@ -38,6 +38,9 @@ import time
 # LangChain - LLM via Groq
 from langchain_groq import ChatGroq
 
+# LangChain - Local, open-source embeddings
+from langchain.embeddings import HuggingFaceEmbeddings
+
 # LangChain - Document loaders for URLs, PDFs, TXT/MD
 from langchain_community.document_loaders import (
     WebBaseLoader,
@@ -82,10 +85,7 @@ print(llm,"done")
 #step3
 # Step 3: Hugging Face Embeddings Setup
 
-
-# LangChain - Local, open-source embeddings
 from langchain.embeddings import HuggingFaceEmbeddings
-#from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
 embeddings = HuggingFaceEmbeddings(
@@ -116,7 +116,7 @@ st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
 
-data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File", "CSV File"])
+data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File"])
 
 uploaded_file = None
 input_url = None
@@ -125,17 +125,12 @@ if data_source == "URL":
     input_url = st.sidebar.text_input("Enter URL to ingest:")
 elif data_source in ["PDF", "Text File"]:
     uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
-elif data_source == "CSV File":
-    uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
 # Initialize session state holders
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
-
 
 if st.sidebar.button("Ingest Data"):
 
@@ -149,15 +144,6 @@ if st.sidebar.button("Ingest Data"):
         with open("temp_uploaded_file.txt", "wb") as f:
             f.write(uploaded_file.read())
         loader = TextLoader("temp_uploaded_file.txt")
-    elif data_source == "CSV File" and uploaded_file is not None:
-        import pandas as pd
-        df = pd.read_csv(uploaded_file)
-        csv_text = df.to_string(index=False)  # convert DataFrame to plain text
-        with open("temp_uploaded_file.csv.txt", "w", encoding="utf-8") as f:
-            f.write(csv_text)
-        from langchain_community.document_loaders import TextLoader
-        loader = TextLoader("temp_uploaded_file.csv.txt")
-
     else:
         st.error("⚠️ Please provide a valid input for the selected data source.")
         st.stop()
@@ -165,9 +151,6 @@ if st.sidebar.button("Ingest Data"):
     st.info("Loading and processing documents...")
 
     docs = loader.load()
-    if not docs:
-        st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
-        st.stop()
 
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
@@ -192,22 +175,11 @@ if st.sidebar.button("Ingest Data"):
         combine_docs_chain=document_chain
     )
 
-
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
 # Only allow question input if retrieval_chain is ready
-#for msg in st.session_state.messages:
-#   with st.chat_message(msg["role"]):
-#      st.markdown(msg["content"])
+if st.session_state.retrieval_chain is not None:
+    user_query = st.text_input("Ask your question:")
 
-if (
-    st.session_state.retrieval_chain is not None
-    #and st.session_state.vector_store is not None
-    #and len(st.session_state.vector_store.index_to_docstore_id) > 0
-):
-    user_query = st.chat_input("Ask your question:")
     if user_query:
         with st.spinner("Generating answer..."):
             start_time = time.time()
