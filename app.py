@@ -204,8 +204,8 @@ if "messages" not in st.session_state:
 
 if (
     st.session_state.retrieval_chain is not None
-    and st.session_state.vector_store is not None
-    and len(st.session_state.vector_store.index_to_docstore_id) > 0
+    #and st.session_state.vector_store is not None
+    #and len(st.session_state.vector_store.index_to_docstore_id) > 0
 ):
     user_query = st.chat_input("Ask your question:")
     if user_query:
