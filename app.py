@@ -95,7 +95,7 @@ os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 # Use Hugging Face Inference API to get embeddings
 huggingface_embeddings = HuggingFaceHubEmbeddings(
     repo_id="BAAI/bge-small-en-v1.5",  # or use "sentence-transformers/all-MiniLM-L6-v2" for faster response
-    model_kwargs={"task": "feature-extraction"}
+    model_kwargs={"task": "text-embedding"}
 )
 
 
@@ -172,6 +172,9 @@ if st.sidebar.button("Ingest Data"):
     st.info("Loading and processing documents...")
 
     docs = loader.load()
+    if not docs:
+        st.error("❌ Failed to load documents. Please check your file content.")
+        st.stop()
 
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
