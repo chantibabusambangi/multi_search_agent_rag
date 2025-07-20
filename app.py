@@ -7,7 +7,10 @@ import streamlit as st
 # ======================
 # ⚡ User Count Tracking
 # ======================
-user_id = str(uuid.uuid4())
+if "user_id" not in st.session_state:
+    st.session_state.user_id = str(uuid.uuid4())
+user_id = st.session_state.user_id
+
 visits_file = "user_visits.csv"
 
 if not os.path.exists(visits_file):
@@ -129,10 +132,13 @@ elif data_source == "CSV File":
     uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 
 # Initialize session state holders
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
 if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
+
 
 if st.sidebar.button("Ingest Data"):
 
