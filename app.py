@@ -94,9 +94,22 @@ huggingface_embeddings = HuggingFaceHubEmbeddings(
     repo_id="BAAI/bge-small-en-v1.5",  # or use "sentence-transformers/all-MiniLM-L6-v2" for faster response
     model_kwargs={"task": "feature-extraction"}
 )
+import streamlit as st
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+import os
 
+# ✅ Load Hugging Face API key from Streamlit secrets
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+
+# ✅ Create the embedding model from Hugging Face Hub
+huggingface_embeddings = HuggingFaceInferenceAPIEmbeddings(
+    model_name="BAAI/bge-small-en-v1.5",  # Correct key here!
+    model_kwargs={"task": "feature-extraction"}
+    
+)
 
 print("✅ Hugging Face Embeddings initialized successfully!")
+
 # ======================
 # ⚡ Multi-Search Agent RAG System - Step 4 (Corrected)
 # ======================
