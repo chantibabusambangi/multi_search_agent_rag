@@ -172,7 +172,6 @@ if st.sidebar.button("Ingest Data"):
         st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
         st.stop()
 
-    
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -183,7 +182,7 @@ if st.sidebar.button("Ingest Data"):
     from langchain_community.vectorstores import FAISS
     
     st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
-
+    os.remove("temp_uploaded_file.pdf")
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
     # Create retrieval chain
