@@ -178,21 +178,17 @@ if st.sidebar.button("Ingest Data"):
         st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
         st.stop()
 
-    # @st.cache_resource(show_spinner="🔍 Embedding & indexing documents...")
-    def embed_and_index(documents, embeddings):
-        from langchain_community.vectorstores import FAISS
-        return FAISS.from_documents(documents, embedding=embeddings)
-        
+    
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=200
     )
     documents = text_splitter.split_documents(docs)
-    st.session_state.vector_store = embed_and_index(documents, embeddings)
     
-    #from langchain_community.vectorstores import FAISS
-    #st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings)
+    from langchain_community.vectorstores import FAISS
+    
+    st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
 
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
