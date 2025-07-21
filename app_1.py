@@ -182,7 +182,8 @@ if st.sidebar.button("Ingest Data"):
     from langchain_community.vectorstores import FAISS
     
     st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
-    os.remove("temp_uploaded_file.pdf")
+    if os.path.exists("temp_uploaded_file.pdf"):
+        os.remove("temp_uploaded_file.pdf")
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
     # Create retrieval chain
