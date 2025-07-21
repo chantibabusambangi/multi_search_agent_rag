@@ -116,7 +116,6 @@ pdf_files = st.sidebar.file_uploader("📄 Upload PDF(s)", type=["pdf"], accept_
 text_files = st.sidebar.file_uploader("📝 Upload Text/Markdown file(s)", type=["txt", "md"], accept_multiple_files=True)
 csv_files = st.sidebar.file_uploader("📊 Upload CSV file(s)", type=["csv"], accept_multiple_files=True)
 
-
 if st.sidebar.button("Ingest Data"):
     all_docs = []
 
@@ -214,9 +213,6 @@ if st.sidebar.button("Ingest Data"):
         os.remove("temp_uploaded_file.pdf")
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
-if st.sidebar.button("🧹 Clear Session"):
-    st.session_state.clear()
-    st.experimental_rerun()
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 if "messages" not in st.session_state:
     st.session_state.messages = []
