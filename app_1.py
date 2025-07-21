@@ -51,9 +51,6 @@ from langchain_community.document_loaders import (
 
 # LangChain - Text splitting
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-# LangChain - Vector DB (Chroma)
-from langchain_community.vectorstores import FAISS
 # Split into chunks
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
@@ -180,9 +177,16 @@ if st.sidebar.button("Ingest Data"):
     )
     documents = text_splitter.split_documents(docs)
     
-    from langchain_community.vectorstores import FAISS
+    #from langchain_community.vectorstores import FAISS
+    #st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
+
+    from langchain_community.vectorstores import Chroma
+    st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
+
+
+
+
     
-    st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
     if os.path.exists("temp_uploaded_file.pdf"):
         os.remove("temp_uploaded_file.pdf")
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
