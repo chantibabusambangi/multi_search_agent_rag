@@ -110,10 +110,12 @@ st.sidebar.header("📥 Ingest Your Data")
 # ✅ Allow users to provide multiple data types
 st.sidebar.markdown("### Upload any combination of data sources:")
 
+
+input_url = st.sidebar.text_input("🌐 Or enter a URL:")
 pdf_files = st.sidebar.file_uploader("📄 Upload PDF(s)", type=["pdf"], accept_multiple_files=True)
 text_files = st.sidebar.file_uploader("📝 Upload Text/Markdown file(s)", type=["txt", "md"], accept_multiple_files=True)
 csv_files = st.sidebar.file_uploader("📊 Upload CSV file(s)", type=["csv"], accept_multiple_files=True)
-input_url = st.sidebar.text_input("🌐 Or enter a URL (optional):")
+
 
 if st.sidebar.button("Ingest Data"):
     all_docs = []
