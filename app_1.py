@@ -28,10 +28,8 @@ st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique()}")
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
 
 # Frontend
-import streamlit as st
 
 # Environment management
-from dotenv import load_dotenv
 import os
 import time
 
