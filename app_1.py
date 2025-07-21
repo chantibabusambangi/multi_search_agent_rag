@@ -26,6 +26,7 @@ st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique()}")
 
 
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
+from tool_search import search_with_tools #tool search
 
 # Frontend
 
@@ -214,20 +215,38 @@ if (
             response = st.session_state.retrieval_chain.invoke({"input": user_query})
             elapsed = time.time() - start_time
 
-        st.subheader("Answer:")
-        st.write(response.get('answer') or response.get('output') or response or "⚠️ No answer returned.")
 
-        st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
-
-        with st.expander("🔍 Full raw response (debug):"):
-            st.json(response)
-
-        if "context" in response and response["context"]:
-            with st.expander("📄 Show retrieved context chunks"):
-                for doc in response["context"]:
-                    st.write(doc.page_content)
-                    st.write("---")
+        
+        # Extract answer safely
+        answer = response.get("answer") or response.get("output") or ""
+    
+        # Check if RAG failed to give answer
+        if "i don't know" in answer.lower() or not answer.strip():
+            st.warning("🛠 Out of context — switching to external tools (Arxiv/Wikipedia)...")
+    
+            # Call external tools
+            tool_result = search_with_tools(user_query)
+    
+            st.subheader("📡 External Tool Response")
+            st.write(tool_result["result"])
+            st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
+    
         else:
-            st.info("⚠️ No retrieved context available for this query.")
+            # RAG gave an answer — show it
+            st.subheader("Answer:")
+            st.write(answer)
+            st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
+    
+            with st.expander("🔍 Full raw response (debug):"):
+                st.json(response)
+    
+            # Optional: show retrieved context
+            if "context" in response and response["context"]:
+                with st.expander("📄 Show retrieved context chunks"):
+                    for doc in response["context"]:
+                        st.write(doc.page_content)
+                        st.write("---")
+            else:
+                st.info("⚠️ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
