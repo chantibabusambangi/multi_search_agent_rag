@@ -178,7 +178,7 @@ if st.sidebar.button("Ingest Data"):
         st.error("⚠️ No text was extracted from the uploaded file. Please check your file and try again.")
         st.stop()
 
-    @st.cache_resource(show_spinner="🔍 Embedding & indexing documents...")
+    # @st.cache_resource(show_spinner="🔍 Embedding & indexing documents...")
     def embed_and_index(documents, embeddings):
         from langchain_community.vectorstores import FAISS
         return FAISS.from_documents(documents, embedding=embeddings)
