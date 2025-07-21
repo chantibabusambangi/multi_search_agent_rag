@@ -135,7 +135,9 @@ if "retrieval_chain" not in st.session_state:
 if st.sidebar.button("Ingest Data"):
 
     if data_source == "URL" and input_url:
-        loader = WebBaseLoader(input_url)
+        from langchain.document_loaders import UnstructuredURLLoader
+        loader = UnstructuredURLLoader(urls=input_url)
+        
     elif data_source == "PDF" and uploaded_file is not None:
         with open("temp_uploaded_file.pdf", "wb") as f:
             f.write(uploaded_file.read())
