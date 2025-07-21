@@ -213,6 +213,9 @@ if st.sidebar.button("Ingest Data"):
     if os.path.exists("temp_uploaded_file.pdf"):
         os.remove("temp_uploaded_file.pdf")
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
+if st.button("🔄 Clear Session"):
+    st.session_state.clear()
+    st.experimental_rerun()
     
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 if "messages" not in st.session_state:
