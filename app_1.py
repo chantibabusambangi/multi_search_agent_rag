@@ -201,6 +201,7 @@ if st.sidebar.button("Ingest Data"):
     #st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
 
     # Create the retrieval chain
+    
     document_chain = create_stuff_documents_chain(llm, prompt)
     st.session_state.retrieval_chain = create_retrieval_chain(
         retriever=st.session_state.vector_store.as_retriever(),
