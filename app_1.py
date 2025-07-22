@@ -223,6 +223,17 @@ if "messages" not in st.session_state:
 #   with st.chat_message(msg["role"]):
 #      st.markdown(msg["content"])
 
+# Initialize session state variables if not already set
+if "retrieval_chain" not in st.session_state:
+    st.session_state.retrieval_chain = None
+
+if "vector_store" not in st.session_state:
+    st.session_state.vector_store = None
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+
 if (
     st.session_state.retrieval_chain is not None
     and st.session_state.vector_store is not None
