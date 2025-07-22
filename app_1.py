@@ -241,9 +241,9 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Show chat history
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+#for msg in st.session_state.messages:
+ #   with st.chat_message(msg["role"]):
+  #      st.markdown(msg["content"])
 
 if (
     st.session_state.retrieval_chain is not None
@@ -276,10 +276,7 @@ if (
             st.write(tool_result["result"])
             st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
             st.chat_message("assistant").markdown(tool_result["result"])
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": tool_result["result"]
-            })
+            #st.session_state.messages.append({"role": "assistant","content": tool_result["result"] })
             
         else:
             # RAG gave an answer — show it
