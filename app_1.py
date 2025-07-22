@@ -242,6 +242,8 @@ if (
     user_query = st.chat_input("Ask your question:")
     if user_query:
         st.chat_message("user").markdown(f"**You:** {user_query}")
+
+       
         with st.spinner("Generating answer..."):
             start_time = time.time()
             response = st.session_state.retrieval_chain.invoke({"input": user_query})
@@ -262,6 +264,7 @@ if (
             st.subheader("📡 External Tool Response")
             st.write(tool_result["result"])
             st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
+            st.chat_message("assistant").markdown(tool_result["result"])
             st.session_state.messages.append({
                 "role": "assistant",
                 "content": tool_result["result"]
