@@ -241,9 +241,9 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Show chat history
-#for msg in st.session_state.messages:
- #   with st.chat_message(msg["role"]):
-  #      st.markdown(msg["content"])
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
 if (
     st.session_state.retrieval_chain is not None
