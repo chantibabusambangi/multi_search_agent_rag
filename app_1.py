@@ -213,8 +213,7 @@ if (
 ):
     user_query = st.chat_input("Ask your question:")
     if user_query:
-        if user_query:
-            st.chat_message("user").markdown(f"*You:* {user_query}")
+        st.chat_message("user").markdown(f"*You:* {user_query}")
 
         with st.spinner("Generating answer..."):
             start_time = time.time()
