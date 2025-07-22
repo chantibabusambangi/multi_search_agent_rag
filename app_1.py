@@ -140,14 +140,19 @@ if st.sidebar.button("Ingest Data"):
             temp_path = f"temp_{file.name}"
             with open(temp_path, "wb") as f:
                 f.write(file.read())
-            loader = PyPDFLoader(temp_path)
-            docs = loader.load()
-            docs = [doc for doc in docs if doc.page_content.strip()]
-            if(docs):
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Empty or invalid text file: {file.name}")
-            os.remove(temp_path)
+            try:
+                loader = PyPDFLoader(temp_path)
+                docs = loader.load()
+                docs = [doc for doc in docs if doc.page_content.strip()]
+                if docs:
+                    all_docs.extend(docs)
+                else:
+                    st.warning(f"⚠️ No text found in {file.name}")
+            except Exception as e:
+                st.error(f"❌ Error loading PDF: {file.name}")
+                st.exception(e)
+            finally:
+                os.remove(temp_path)
 
     # 🔹 Load Text files
     if text_files:
@@ -155,33 +160,41 @@ if st.sidebar.button("Ingest Data"):
             temp_path = f"temp_{file.name}"
             with open(temp_path, "wb") as f:
                 f.write(file.read())
-            loader = TextLoader(temp_path)
-            docs = loader.load()
-            docs = [doc for doc in docs if doc.page_content.strip()]
-            if(docs):
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Empty or invalid text file: {file.name}")
-            os.remove(temp_path)
-
+            try:
+                loader = TextLoader(temp_path)
+                docs = loader.load()
+                docs = [doc for doc in docs if doc.page_content.strip()]
+                if docs:
+                    all_docs.extend(docs)
+                else:
+                    st.warning(f"⚠️ No text found in {file.name}")
+            except Exception as e:
+                st.error(f"❌ Error loading text file: {file.name}")
+                st.exception(e)
+            finally:
+                os.remove(temp_path)
     # 🔹 Load CSV files
     if csv_files:
         for file in csv_files:
-            df = pd.read_csv(file)
-            if df.empty:
-                st.warning(f"⚠️ CSV file is empty: {file.name}")
-                continue
-            text = df.to_string(index=False)
-            temp_txt = f"temp_{file.name}.txt"
-            with open(temp_txt, "w", encoding="utf-8") as f:
-                f.write(text)
-            loader = TextLoader(temp_txt)
-            docs = loader.load()
-            if docs:
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Could not extract text from CSV: {file.name}")
-            os.remove(temp_txt)  # ✅ Use the correct file name here
+            try:
+                df = pd.read_csv(file)
+                if df.empty:
+                    st.warning(f"⚠️ Empty CSV: {file.name}")
+                    continue
+                text = df.to_string(index=False)
+                temp_txt = f"temp_{file.name}.txt"
+                with open(temp_txt, "w", encoding="utf-8") as f:
+                    f.write(text)
+                loader = TextLoader(temp_txt)
+                docs = loader.load()
+                if docs:
+                    all_docs.extend(docs)
+                else:
+                    st.warning(f"⚠️ Could not extract from CSV: {file.name}")
+                os.remove(temp_txt)
+            except Exception as e:
+                st.error(f"❌ Failed to process CSV: {file.name}")
+                st.exception(e)
 
     if not all_docs:
         st.error("⚠️ No documents loaded. Please upload or enter a valid input.")
@@ -210,8 +223,6 @@ if st.sidebar.button("Ingest Data"):
 
     st.info("Loading and processing documents...")
     
-    if os.path.exists("temp_uploaded_file.pdf"):
-        os.remove("temp_uploaded_file.pdf")
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
