@@ -22,7 +22,7 @@ if "counted" not in st.session_state:
         new_visit.to_csv(visits_file, mode="a", header=False, index=False)
     st.session_state.counted = True
 
-st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique()}")
+st.sidebar.markdown(f"👥 *Total Visitors:* {df['user_id'].nunique()}")
 
 
 # Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
@@ -51,6 +51,8 @@ from langchain_community.document_loaders import (
 
 # LangChain - Text splitting
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+
 # Split into chunks
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
@@ -107,114 +109,96 @@ prompt = ChatPromptTemplate.from_template(
 st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
-# ✅ Allow users to provide multiple data types
-st.sidebar.markdown("### Upload any combination of data sources:")
 
+data_source = st.sidebar.radio("Select data source:", ["URL", "PDF", "Text File", "CSV File"])
 
-input_url = st.sidebar.text_input("🌐 Or enter a URL:")
-pdf_files = st.sidebar.file_uploader("📄 Upload PDF(s)", type=["pdf"], accept_multiple_files=True)
-text_files = st.sidebar.file_uploader("📝 Upload Text/Markdown file(s)", type=["txt", "md"], accept_multiple_files=True)
-csv_files = st.sidebar.file_uploader("📊 Upload CSV file(s)", type=["csv"], accept_multiple_files=True)
+uploaded_file = None
+input_url = None
+
+if data_source == "URL":
+    input_url = st.sidebar.text_input("Enter URL to ingest:")
+elif data_source in ["PDF", "Text File"]:
+    uploaded_file = st.sidebar.file_uploader(f"Upload your {data_source} file", type=["pdf", "txt", "md"])
+elif data_source == "CSV File":
+    uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+
+# Initialize session state holders
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "vector_store" not in st.session_state:
+    st.session_state.vector_store = None
+if "retrieval_chain" not in st.session_state:
+    st.session_state.retrieval_chain = None
+
 
 if st.sidebar.button("Ingest Data"):
-    all_docs = []
 
-    # 🔹 Load from URL
-    if input_url:
-        try:
-            st.info("📡 Loading from URL...")
-            loader = WebBaseLoader(input_url)
-            docs = loader.load()
-            docs = [doc for doc in docs if doc.page_content.strip()]
-            if(docs):
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Empty or invalid text file: {file.name}")
-        except Exception as e:
-            st.error("❌ Failed to load URL.")
-            st.exception(e)
+    if data_source == "URL" and input_url:
+        loader = WebBaseLoader(input_url)
+    elif data_source == "PDF" and uploaded_file is not None:
+        with open("temp_uploaded_file.pdf", "wb") as f:
+            f.write(uploaded_file.read())
+        loader = PyPDFLoader("temp_uploaded_file.pdf")
+    elif data_source == "Text File" and uploaded_file is not None:
+        with open("temp_uploaded_file.txt", "wb") as f:
+            f.write(uploaded_file.read())
+        loader = TextLoader("temp_uploaded_file.txt")
+    elif data_source == "CSV File" and uploaded_file is not None:
+        import pandas as pd
+        df = pd.read_csv(uploaded_file)
+        csv_text = df.to_string(index=False)  # convert DataFrame to plain text
+        with open("temp_uploaded_file.csv.txt", "w", encoding="utf-8") as f:
+            f.write(csv_text)
+        from langchain_community.document_loaders import TextLoader
+        loader = TextLoader("temp_uploaded_file.csv.txt")
 
-    # 🔹 Load PDFs
-    if pdf_files:
-        for file in pdf_files:
-            temp_path = f"temp_{file.name}"
-            with open(temp_path, "wb") as f:
-                f.write(file.read())
-            loader = PyPDFLoader(temp_path)
-            docs = loader.load()
-            docs = [doc for doc in docs if doc.page_content.strip()]
-            if(docs):
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Empty or invalid text file: {file.name}")
-            os.remove(temp_path)
-
-    # 🔹 Load Text files
-    if text_files:
-        for file in text_files:
-            temp_path = f"temp_{file.name}"
-            with open(temp_path, "wb") as f:
-                f.write(file.read())
-            loader = TextLoader(temp_path)
-            docs = loader.load()
-            docs = [doc for doc in docs if doc.page_content.strip()]
-            if(docs):
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Empty or invalid text file: {file.name}")
-            os.remove(temp_path)
-
-    # 🔹 Load CSV files
-    if csv_files:
-        for file in csv_files:
-            df = pd.read_csv(file)
-            if df.empty:
-                st.warning(f"⚠️ CSV file is empty: {file.name}")
-                continue
-            text = df.to_string(index=False)
-            temp_txt = f"temp_{file.name}.txt"
-            with open(temp_txt, "w", encoding="utf-8") as f:
-                f.write(text)
-            loader = TextLoader(temp_txt)
-            docs = loader.load()
-            if docs:
-                all_docs.extend(docs)
-            else:
-                st.warning(f"⚠️ Could not extract text from CSV: {file.name}")
-            os.remove(temp_txt)  # ✅ Use the correct file name here
-
-    if not all_docs:
-        st.error("⚠️ No documents loaded. Please upload or enter a valid input.")
+    else:
+        st.error("⚠ Please provide a valid input for the selected data source.")
         st.stop()
-    st.info("🧠 Processing documents...")
+
+    st.info("Loading and processing documents...")
+
+    try:
+        docs = loader.load()
+        if not docs:
+            st.warning("No content found in the document.")
+            st.stop()
+    except Exception as e:
+        st.error("Failed to load document.")
+        st.exception(e)
+        st.stop()
+
+    if not docs:
+        st.error("⚠ No text was extracted from the uploaded file. Please check your file and try again.")
+        st.stop()
+
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=200
     )
-    documents = text_splitter.split_documents(all_docs)
+    documents = text_splitter.split_documents(docs)
     
-    from langchain_community.vectorstores import FAISS
-    st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
+    #from langchain_community.vectorstores import FAISS
+    #st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
 
-    #from langchain_community.vectorstores import Chroma
-    #st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
+    from langchain_community.vectorstores import Chroma
+    st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
 
-    # Create the retrieval chain
+
     
+    if os.path.exists("temp_uploaded_file.pdf"):
+        os.remove("temp_uploaded_file.pdf")
+    st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
+
+    # Create retrieval chain
     document_chain = create_stuff_documents_chain(llm, prompt)
     st.session_state.retrieval_chain = create_retrieval_chain(
         retriever=st.session_state.vector_store.as_retriever(),
         combine_docs_chain=document_chain
     )
 
-    st.info("Loading and processing documents...")
-    
-    if os.path.exists("temp_uploaded_file.pdf"):
-        os.remove("temp_uploaded_file.pdf")
-    st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
-
-st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
+st.sidebar.markdown("🔹 *Built with ❤ by chantibabusambangi@gmail.com*")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -230,13 +214,15 @@ if (
 ):
     user_query = st.chat_input("Ask your question:")
     if user_query:
-        st.chat_message("user").markdown(f"**You:** {user_query}")
+        if user_query:
+            st.chat_message("user").markdown(f"*You:* {user_query}")
+
         with st.spinner("Generating answer..."):
             start_time = time.time()
             response = st.session_state.retrieval_chain.invoke({"input": user_query})
             elapsed = time.time() - start_time
-    
-    
+
+
         
         # Extract answer safely
         answer = response.get("answer") or response.get("output") or ""
@@ -250,7 +236,7 @@ if (
     
             st.subheader("📡 External Tool Response")
             st.write(tool_result["result"])
-            st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
+            st.caption(f"🔎 Tool used: *{tool_result['tool_used']}*")
     
         else:
             # RAG gave an answer — show it
@@ -268,6 +254,6 @@ if (
                         st.write(doc.page_content)
                         st.write("---")
             else:
-                st.info("⚠️ No retrieved context available for this query.")
+                st.info("⚠ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
