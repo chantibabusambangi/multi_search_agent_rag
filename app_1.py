@@ -179,11 +179,11 @@ if st.sidebar.button("Ingest Data"):
     )
     documents = text_splitter.split_documents(docs)
     
-    #from langchain_community.vectorstores import FAISS
-    #st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
+    from langchain_community.vectorstores import FAISS
+    st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
 
-    from langchain_community.vectorstores import Chroma
-    st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
+    #from langchain_community.vectorstores import Chroma
+    #st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
 
 
     
