@@ -215,13 +215,9 @@ if st.sidebar.button("Ingest Data"):
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+
 
 # Only allow question input if retrieval_chain is ready
-#for msg in st.session_state.messages:
-#   with st.chat_message(msg["role"]):
-#      st.markdown(msg["content"])
 
 # Initialize session state variables if not already set
 if "retrieval_chain" not in st.session_state:
@@ -233,6 +229,10 @@ if "vector_store" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Show chat history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
 if (
     st.session_state.retrieval_chain is not None
@@ -251,7 +251,7 @@ if (
         
         # Extract answer safely
         answer = response.get("answer") or response.get("output") or ""
-    
+        st.session_state.messages.append({"role": "user", "content": user_query})
         # Check if RAG failed to give answer
         if "i don't know" in answer.lower() or not answer.strip():
             st.warning("🛠 Out of context — switching to external tools (Arxiv/Wikipedia)...")
@@ -262,7 +262,11 @@ if (
             st.subheader("📡 External Tool Response")
             st.write(tool_result["result"])
             st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
-    
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": tool_result["result"]
+            })
+            
         else:
             # RAG gave an answer — show it
             st.subheader("Answer:")
