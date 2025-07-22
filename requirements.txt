@@ -27,6 +27,7 @@ faiss-cpu
 
 wikipedia
 arxiv
+tavily-python
 
 Pillow
 easyocr
