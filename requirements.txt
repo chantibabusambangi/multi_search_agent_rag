@@ -16,7 +16,8 @@ langchain-groq==0.1.2
 
 # Embeddings
 huggingface_hub==0.23.0
-sentence-transformers==2.7.0
+
+sentence-transformers==2.7.1
 transformers==4.40.2
 #google-generativeai==0.5.4
 
@@ -49,4 +50,5 @@ pandas
 
 # System compatibility
 protobuf==4.25.1
+
 
