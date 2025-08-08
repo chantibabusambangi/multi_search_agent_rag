@@ -17,12 +17,12 @@ langchain-groq==0.1.2
 # Embeddings
 huggingface_hub==0.23.0
 sentence-transformers==2.7.0
-
+transformers==4.40.2
 #google-generativeai==0.5.4
 
 # Vector DB
 chromadb==0.4.24
-faiss-cpu
+faiss-cpu==1.7.4 
 #for image text extraction
 
 wikipedia
@@ -49,3 +49,4 @@ pandas
 
 # System compatibility
 protobuf==4.25.1
+
