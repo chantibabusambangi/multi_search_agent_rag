@@ -75,8 +75,9 @@ load_dotenv()
 
 from langchain_groq import ChatGroq
 
-#llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="mixtral-8x7b-32768")
-llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
+
+#llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
+llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama-3.3-70b-versatile")
 
 # Step 3: Hugging Face Embeddings Setup
 # Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
@@ -297,3 +298,4 @@ if (
                 st.info("⚠️ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
+
