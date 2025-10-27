@@ -74,8 +74,14 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
 ])
 
 # Answer prompt with context and history
-qa_system_prompt = """You are an AI assistant. Use only the information in the <context> to answer the question.
-If the answer is not explicitly stated, respond with "I don't know".
+qa_system_prompt = """You are an AI assistant. First check the conversation history for relevant information.
+Then use the information in the <context> to answer the question.
+
+Important:
+- Remember personal information shared by the user in previous messages (like name, location, preferences)
+- If the question is personal or conversational (greetings, personal facts), answer from chat history
+- If the question requires document knowledge, use the <context>
+- If the answer is not in history or context, respond with "I don't know"
 
 <context>
 {context}
