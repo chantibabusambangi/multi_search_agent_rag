@@ -24,93 +24,75 @@ if "counted" not in st.session_state:
 
 st.sidebar.markdown(f"👥 **Total Visitors:** {df['user_id'].nunique()}")
 
-
-# Step 1: Importing All Required Libraries for Multi-Search Agent RAG System
-from tool_search import search_with_tools #tool search
-
-# Frontend
-
-# Environment management
-
-import os
+# ======================
+# Imports
+# ======================
+from tool_search import search_with_tools
 import time
+from dotenv import load_dotenv
 
-# LangChain - LLM via Groq
+# LangChain
 from langchain_groq import ChatGroq
-
-# LangChain - Local, open-source embeddings
-#from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
-
-# LangChain - Document loaders for URLs, PDFs, TXT/MD
 from langchain_community.document_loaders import (
     WebBaseLoader,
     PyPDFLoader,
     TextLoader
 )
-
-# LangChain - Text splitting
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-# Split into chunks
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=200
-)
-
-# LangChain - Chains and prompts
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import create_retrieval_chain
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.chains import create_retrieval_chain, create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_community.vectorstores import FAISS
+from langchain_core.messages import HumanMessage, AIMessage
 
-# (Optional: Later when you build agent extensions)
-# from langchain_community.tools import WikipediaQueryRun, ArxivQueryRun
-# from langchain_community.utilities import WikipediaAPIWrapper, ArxivAPIWrapper
-
-
-#step 2
-from dotenv import load_dotenv
-import os
-
+# ======================
+# Setup
+# ======================
 load_dotenv()
 
-from langchain_groq import ChatGroq
-
-
-#llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model_name="llama-3.3-70b-versatile")
 
-# Step 3: Hugging Face Embeddings Setup
-# Initialize Hugging Face Embeddings with a recommended retrieval-optimized model
-embeddings = HuggingFaceEmbeddings(
-    model_name="BAAI/bge-small-en",  # You can replace with another HF model if desired
-)
+embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en")
 
 print("✅ Hugging Face Embeddings initialized successfully!")
+
 # ======================
-# ⚡ Multi-Search Agent RAG System - Step 4 (Corrected)
+# ⚡ Conversational Prompt with Chat History
 # ======================
 
-# Create Prompt Template
-prompt = ChatPromptTemplate.from_template(
-    """
-    You are an AI assistant. Use only the information in the <context> to answer the question. 
-    If the answer is not explicitly stated, respond with "I don't know".
+# Contextualize question prompt - reformulates question based on chat history
+contextualize_q_system_prompt = """Given a chat history and the latest user question \
+which might reference context in the chat history, formulate a standalone question \
+which can be understood without the chat history. Do NOT answer the question, \
+just reformulate it if needed and otherwise return it as is."""
 
-    <context>
-    {context}
-    </context>
+contextualize_q_prompt = ChatPromptTemplate.from_messages([
+    ("system", contextualize_q_system_prompt),
+    MessagesPlaceholder("chat_history"),
+    ("human", "{input}"),
+])
 
-    Question: {input}
-    """
-)
+# Answer prompt with context and history
+qa_system_prompt = """You are an AI assistant. Use only the information in the <context> to answer the question.
+If the answer is not explicitly stated, respond with "I don't know".
 
+<context>
+{context}
+</context>"""
+
+qa_prompt = ChatPromptTemplate.from_messages([
+    ("system", qa_system_prompt),
+    MessagesPlaceholder("chat_history"),
+    ("human", "{input}"),
+])
+
+# ======================
 # Streamlit UI
+# ======================
 st.title("🔍 Multi-Search Agent RAG System (Groq + LangChain)")
 
 st.sidebar.header("📥 Ingest Your Data")
-# ✅ Allow users to provide multiple data types
-# st.sidebar.markdown("### Upload any combination of data sources:")
-
 
 input_url = st.sidebar.text_input("🌐 Or enter a URL:")
 pdf_files = st.sidebar.file_uploader("📄 Upload PDF(s)", type=["pdf"], accept_multiple_files=True)
@@ -127,10 +109,10 @@ if st.sidebar.button("Ingest Data"):
             loader = WebBaseLoader(input_url)
             docs = loader.load()
             docs = [doc for doc in docs if doc.page_content.strip()]
-            if(docs):
+            if docs:
                 all_docs.extend(docs)
             else:
-                st.warning(f"⚠️ Empty or invalid text file: {file.name}")
+                st.warning(f"⚠️ Empty or invalid URL")
         except Exception as e:
             st.error("❌ Failed to load URL.")
             st.exception(e)
@@ -174,6 +156,7 @@ if st.sidebar.button("Ingest Data"):
                 st.exception(e)
             finally:
                 os.remove(temp_path)
+
     # 🔹 Load CSV files
     if csv_files:
         for file in csv_files:
@@ -200,7 +183,9 @@ if st.sidebar.button("Ingest Data"):
     if not all_docs:
         st.error("⚠️ No documents loaded. Please upload or enter a valid input.")
         st.stop()
+    
     st.info("🧠 Processing documents...")
+    
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -208,30 +193,34 @@ if st.sidebar.button("Ingest Data"):
     )
     documents = text_splitter.split_documents(all_docs)
     
-    from langchain_community.vectorstores import FAISS
-    st.session_state.vector_store = FAISS.from_documents(documents,embedding=embeddings) #non-persistant(before 07/2025)
-
-    #from langchain_community.vectorstores import Chroma
-    #st.session_state.vector_store = Chroma.from_documents(documents, embedding=embeddings)
+    # Create vector store
+    st.session_state.vector_store = FAISS.from_documents(documents, embedding=embeddings)
     
-    # Create the retrieval chain
-    
-    document_chain = create_stuff_documents_chain(llm, prompt)
-    st.session_state.retrieval_chain = create_retrieval_chain(
-        retriever=st.session_state.vector_store.as_retriever(),
-        combine_docs_chain=document_chain
+    # Create history-aware retriever
+    retriever = st.session_state.vector_store.as_retriever()
+    history_aware_retriever = create_history_aware_retriever(
+        llm, retriever, contextualize_q_prompt
     )
-
-    st.info("Loading and processing documents...")
+    
+    # Create document chain
+    question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+    
+    # Create RAG chain with history
+    st.session_state.retrieval_chain = create_retrieval_chain(
+        history_aware_retriever, question_answer_chain
+    )
+    
+    # Initialize chat history if needed
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
     
     st.success("✅ Data ingestion and vector store setup complete! You can now ask questions below.")
 
 st.sidebar.markdown("🔹 **Built with ❤️ by chantibabusambangi@gmail.com**")
 
-
-# Only allow question input if retrieval_chain is ready
-
-# Initialize session state variables if not already set
+# ======================
+# Initialize Session State
+# ======================
 if "retrieval_chain" not in st.session_state:
     st.session_state.retrieval_chain = None
 
@@ -241,11 +230,25 @@ if "vector_store" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Show chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# Add Clear History button in sidebar
+if st.sidebar.button("🗑️ Clear Chat History"):
+    st.session_state.messages = []
+    st.session_state.chat_history = []
+    st.rerun()
+
+# ======================
+# Display Chat History
+# ======================
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
+# ======================
+# Chat Interface
+# ======================
 if (
     st.session_state.retrieval_chain is not None
     and st.session_state.vector_store is not None
@@ -253,49 +256,67 @@ if (
 ):
     user_query = st.chat_input("Ask your question:")
     if user_query:
-        st.chat_message("user").markdown(f"**You:** {user_query}")
-
-       
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(user_query)
+        
+        st.session_state.messages.append({"role": "user", "content": user_query})
+        
         with st.spinner("Generating answer..."):
             start_time = time.time()
-            response = st.session_state.retrieval_chain.invoke({"input": user_query})
+            
+            # Pass chat history to the chain
+            response = st.session_state.retrieval_chain.invoke({
+                "input": user_query,
+                "chat_history": st.session_state.chat_history
+            })
+            
             elapsed = time.time() - start_time
-    
-    
         
-        # Extract answer safely
+        # Extract answer
         answer = response.get("answer") or response.get("output") or ""
-        st.session_state.messages.append({"role": "user", "content": user_query})
-        # Check if RAG failed to give answer
+        
+        # Check if RAG failed
         if "i don't know" in answer.lower() or not answer.strip():
             st.warning("🛠 Out of context — switching to external tools (Arxiv/Wikipedia)...")
-    
-            # Call external tools
-            tool_result = search_with_tools(user_query)
-    
-            st.subheader("📡 External Tool Response")
-            st.write(tool_result["result"])
-            st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
-            st.chat_message("assistant").markdown(tool_result["result"])
-            #st.session_state.messages.append({"role": "assistant","content": tool_result["result"] })
+            
+            # Call external tools with history
+            tool_result = search_with_tools(user_query, st.session_state.chat_history)
+            
+            with st.chat_message("assistant"):
+                st.markdown(tool_result["result"])
+                st.caption(f"🔎 Tool used: **{tool_result['tool_used']}**")
+            
+            st.session_state.messages.append({"role": "assistant", "content": tool_result["result"]})
+            
+            # Update chat history
+            st.session_state.chat_history.extend([
+                HumanMessage(content=user_query),
+                AIMessage(content=tool_result["result"])
+            ])
             
         else:
-            # RAG gave an answer — show it
-            st.subheader("Answer:")
-            st.write(answer)
-            st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
-    
+            # RAG gave an answer
+            with st.chat_message("assistant"):
+                st.markdown(answer)
+                st.caption(f"⚡ Response generated in {elapsed:.2f} seconds.")
+            
+            st.session_state.messages.append({"role": "assistant", "content": answer})
+            
+            # Update chat history
+            st.session_state.chat_history.extend([
+                HumanMessage(content=user_query),
+                AIMessage(content=answer)
+            ])
+            
             with st.expander("🔍 Full raw response (debug):"):
                 st.json(response)
-    
-            # Optional: show retrieved context
+            
+            # Show retrieved context
             if "context" in response and response["context"]:
                 with st.expander("📄 Show retrieved context chunks"):
                     for doc in response["context"]:
                         st.write(doc.page_content)
                         st.write("---")
-            else:
-                st.info("⚠️ No retrieved context available for this query.")
 else:
     st.warning("👈 Please ingest your data first using the sidebar before asking questions.")
-
