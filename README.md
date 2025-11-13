@@ -89,8 +89,9 @@ The History-Aware Retriever component uses the LLM (Groq) to reformulate the use
 This rewritten query is then used to search the FAISS vector store to ensure accurate document retrieval, as the vector store cannot process the conversational history itself.
 who rewrites the followup questions?
 **llm** in the llm prompt we told/instructed to him that
-**"Given a chat history and the latest user question... formulate a standalone question which can be understood without the chat history."
-**
+**"Given a chat history and the latest user question... formulate a standalone question which can be understood without the chat history."\
+
+where chat history stored:  st.session_state.chat_history in streamlit session state
 
 2.Limited Knowledge of Local Documents
 The model couldn’t answer queries outside the uploaded dataset.
