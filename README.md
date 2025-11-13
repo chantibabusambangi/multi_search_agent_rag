@@ -91,7 +91,8 @@ who rewrites the followup questions?
 **llm** in the llm prompt we told/instructed to him that
 **"Given a chat history and the latest user question... formulate a standalone question which can be understood without the chat history."\
 
-where chat history stored:  st.session_state.chat_history in streamlit session state
+where chat history stored:  st.session_state.chat_history in streamlit session state, given to llm to rewrite the query.
+
 
 2.Limited Knowledge of Local Documents
 The model couldn’t answer queries outside the uploaded dataset.
