@@ -4,10 +4,38 @@ link:https://multisearchagentragcbs.streamlit.app/
 got 110+ users😍
 <img width="1885" height="1055" alt="image" src="https://github.com/user-attachments/assets/a076a66a-fa56-45e1-bd1a-074d71742ca6" />
 ******************************about the project***************************\
-RAG: Retrieval Augumented Generation.
-Retrieval: retrieving relevant information from database/vector store.
-Augumented: augumenting/enhancing the query by adding the context of data gotten from database.
-Generation: LLM generates the concise answer.
+**RAG**: Retrieval Augumented Generation.\
+**Retrieval**: retrieving relevant information from database/vector store. retreieving top k(4) chunks from database.\
+
+**Augumented**: augumenting/enhancing the query by adding the context of data gotten from database.\ 
+
+here, we augumented the user_query: 1.to formulated to a standalone question to handle follow-ups safely with injuction of chat_history.
+
+#Contextualize question prompt - reformulates question based on chat history\
+contextualize_q_system_prompt = """Given a chat history and the latest user question \
+which might reference context in the chat history, formulate a standalone question \
+which can be understood without the chat history. Do NOT answer the question, \
+just reformulate it if needed and otherwise return it as is."""
+
+
+2.augumented the system prompt, injucted the relevant chunks(top k=4) along with enhanced_query and  dev_prompt(you are an ai assistent).
+
+qa_system_prompt = """You are an AI assistant. First check the conversation history for relevant information.
+Then use the information in the <context> to answer the question.
+
+Important:
+- Remember personal information shared by the user in previous messages (like name, location, preferences)
+- If the question is personal or conversational (greetings, personal facts), answer from chat history
+- If the question requires document knowledge, use the <context>
+- If the answer is not in history or context, respond with "I don't know"
+
+<context>
+{context}
+</context>"""\
+
+**so basically augumentation means enhancing query or prompt by adding specific prompts & context or history, to get concise,accurate response.**\
+
+**Generation**: LLM generates the concise answer.\
 **Q1.why RAG should be used?**\
 ans:
 **Limitations on LLMs:**\
