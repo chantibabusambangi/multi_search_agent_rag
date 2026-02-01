@@ -4,6 +4,7 @@ link:https://multisearchagentragcbs.streamlit.app/
 got 110+ users😍
 <img width="1885" height="1055" alt="image" src="https://github.com/user-attachments/assets/a076a66a-fa56-45e1-bd1a-074d71742ca6" />
 ******************************about the project***************************\
+RAG (Retrieval-Augmented Generation) is an architecture used to optimize the output of a Large Language Model (LLM)\
 **RAG**: Retrieval Augumented Generation.\
 **Retrieval**: retrieving relevant information from database/vector store. retreieving top k(4) chunks from database.\
 
