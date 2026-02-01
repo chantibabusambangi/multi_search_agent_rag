@@ -4,6 +4,10 @@ link:https://multisearchagentragcbs.streamlit.app/
 got 110+ users😍
 <img width="1885" height="1055" alt="image" src="https://github.com/user-attachments/assets/a076a66a-fa56-45e1-bd1a-074d71742ca6" />
 ******************************about the project***************************\
+RAG: Retrieval Augumented Generation.
+Retrieval: retrieving relevant information from database/vector store.
+Augumented: augumenting/enhancing the query by adding the context of data gotten from database.
+Generation: LLM generates the concise answer.
 **Q1.why RAG should be used?**\
 ans:
 **Limitations on LLMs:**\
