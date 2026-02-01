@@ -5,6 +5,8 @@ got 110+ users😍
 <img width="1885" height="1055" alt="image" src="https://github.com/user-attachments/assets/a076a66a-fa56-45e1-bd1a-074d71742ca6" />
 ******************************about the project***************************\
 RAG (Retrieval-Augmented Generation) is an architecture used to optimize the output of a Large Language Model (LLM), it is like AI with search engine.\
+is an architecture that enhances the capabilities of Large Language Models (LLMs) by integrating them with external knowledge sources. This integration allows LLMs to access up-to-date, domain-specific information which helps in improving the accuracy and relevance of generated responses. RAG is effective in addressing challenges such as hallucinations and outdated knowledge.
+
 **RAG**: Retrieval Augumented Generation.\
 **Retrieval**: retrieving relevant information from database/vector store. retreieving top k(4) chunks from database.\
 
